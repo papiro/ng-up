@@ -5,8 +5,11 @@ const
   rimraf = require("rimraf"),
 
   cliArg = process.argv[2],
-  project_name = "app",
-  project_path = path.resolve(".", project_name),
+  project_name = "app", // Hard-coded in angular-cli https://github.com/angular/angular-cli/issues/3095
+  angularJson = require(path.join(process.cwd(), "angular.json")),
+  firstProject = Object.keys(angularJson.projects)[0],
+  // Just use the first project's sourceRoot for simplicity's sake 
+  project_path = path.resolve(process.cwd(), angularJson.projects[firstProject].sourceRoot, project_name),
   services_path = path.join(project_path, "services"),
   modules_path = path.join(project_path, "modules")
 ;
@@ -43,7 +46,6 @@ function moveServices () {
   move("service");
 }
 function moveModule (module) {
-  console.log("MOVING MODULE ", module);
   move(module);
 }
 function moveComponents (module) {
@@ -83,6 +85,7 @@ function tryMkdir (dir) {
   }
 }
 function cleanup () {
+  console.log("cleaning ", project_path);
   rimraf.sync(project_path);
 }
 
