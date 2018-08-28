@@ -22,9 +22,10 @@ function newModule (str, { routing = false, module } = {}) {
     ( routing ? " --routing" : "" ) + 
     ( module ? " --module " + module : "" ));
 }
-function newComponent (str, module) {
+function newComponent (str, { module, prefix }) {
   gen("component " + str +
     " --module " + module +
+    ( prefix ? " --prefix " + prefix : "" ) +
     " --flat");
 }
 function gen (str) {
@@ -97,7 +98,7 @@ function main (bp) {
   function recurseModulesAndGenerateComponents (modulesObj, parent = null) {
     Object.keys(modulesObj)
       .filter( key => {
-        return !~["components", "hasRouting", "import"].indexOf(key);
+        return !~["components", "hasRouting", "import", "prefix"].indexOf(key);
       })
       .forEach( module => {
         const moduleObj = modulesObj[module];
@@ -105,10 +106,11 @@ function main (bp) {
         if (Object.keys(moduleObj).length === 0) return;
         const routing = !!moduleObj.hasRouting;
         const importInto = moduleObj.import && parent;
+        const prefix = moduleObj.prefix;
         newModule(module, { routing, module: importInto });
         const components = moduleObj.components;
         if (components) {
-          components.forEach( component => { newComponent(component, module) });
+          components.forEach( component => { newComponent(component,{ module, prefix }) });
           moveComponents(module);
         }
         recurseModulesAndGenerateComponents(moduleObj, module);
