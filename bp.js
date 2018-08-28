@@ -48,9 +48,24 @@ function moveServices () {
 }
 function moveModule (module) {
   move(module);
+  rewriteComponentImports(module);
 }
 function moveComponents (module) {
   move("component", module); 
+}
+function rewriteComponentImports (module) {
+  const filepath = path.join(modules_path, module, module + ".module.ts");
+  const fd = fs.openSync(filepath, "a+");
+  const size = fs.fstatSync(fd).size;
+  const fbuff = new Buffer.allocUnsafe(size);
+
+  fs.readSync(fd, fbuff, null, size);
+  
+  const data = fbuff.toString().replace(/\.\.\/.*\.component/g, match => {
+    return "./components/" + match.split("/")[1];
+  });
+
+  fs.writeSync(fd, data, 0, 0, "utf8");
 }
 function move (entity, module) {
   fs.readdirSync(project_path)
