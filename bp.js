@@ -108,7 +108,7 @@ function cleanup () {
 function main (bp) {
   const { modules, services } = bp;
   scaffoldDirs();
-  services.forEach(newService);
+  services && services.forEach(newService);
   moveServices();
   function recurseModulesAndGenerateComponents (modulesObj, parent = null) {
     Object.keys(modulesObj)
